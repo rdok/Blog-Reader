@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">BlogReader</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="no_items">No items to display!</string>
+
+    <string-array name="funny_sentences">
+        <item>The blue doctor kicked the big doctor.</item>
+        <item>The crazy turtle hopped over the thin brussel sprout.</item>
+        <item>The purple milkshake tripped over the odd-looking nerd.</item>
+        <item>The small sky hopped over the weird tortoise.</item>
+        <item>The pretty nerd helped the fat cat.</item>
+        <item>The weird cloud hopped over the cool doctor.</item>
+    </string-array>
+
+</resources>
