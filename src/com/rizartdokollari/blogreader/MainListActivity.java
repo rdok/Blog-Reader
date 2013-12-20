@@ -11,6 +11,7 @@ import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -20,8 +21,10 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.Html;
 import android.util.Log;
 import android.view.Menu;
+import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 public class MainListActivity extends ListActivity {
@@ -74,7 +77,19 @@ public class MainListActivity extends ListActivity {
 			// TODO: Handle error
 		} else {
 			try {
-				Log.d(TAG, getmBlogData().toString(2));
+				JSONArray jsonPosts = mBlogData.getJSONArray("posts");
+				mBlogPostTitles = new String[jsonPosts.length()];
+
+				for (int i = 0; i < jsonPosts.length(); i++) {
+					JSONObject post = jsonPosts.getJSONObject(i);
+					String title = post.getString("title");
+					title = Html.fromHtml(title).toString();
+					mBlogPostTitles[i] = title;
+				} // end for
+
+				ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+						android.R.layout.simple_list_item_1, mBlogPostTitles);
+				setListAdapter(adapter);
 			} catch (JSONException e) {
 				Log.e(TAG, "Exception caught!", e);
 			}
@@ -109,7 +124,8 @@ public class MainListActivity extends ListActivity {
 			StringBuilder builder = new StringBuilder();
 			HttpClient client = new DefaultHttpClient();
 			HttpGet httpget = new HttpGet(
-					"https://ajax.googleapis.com/ajax/services/search/images?v=1.0&q=fuzzy%20monkey");
+					"http://blog.teamtreehouse.com/api/get_recent_summary/?count="
+							+ NUMBER_OF_POSTS);
 
 			try {
 				HttpResponse response = client.execute(httpget);
