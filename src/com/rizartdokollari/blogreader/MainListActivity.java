@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -15,6 +17,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.content.Context;
 import android.net.ConnectivityManager;
@@ -24,22 +27,31 @@ import android.os.Bundle;
 import android.text.Html;
 import android.util.Log;
 import android.view.Menu;
-import android.widget.ArrayAdapter;
+import android.view.View;
+import android.widget.ProgressBar;
+import android.widget.SimpleAdapter;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainListActivity extends ListActivity {
 
-	private String[] mBlogPostTitles;
+	private static final String KEY_AUTHOR = "author";
+	private static final String KEY_TITLE = "title";
+
 	public static final int NUMBER_OF_POSTS = 20;
 	public static final String TAG = MainListActivity.class.getSimpleName();
 	protected JSONObject mBlogData;
+	protected ProgressBar mProgressBar;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main_list);
 
+		mProgressBar = (ProgressBar) findViewById(R.id.progressBar1);
+
 		if (isNetwokAvailable()) {
+			mProgressBar.setVisibility(View.VISIBLE);
 			GetBlogPostsTask getBlogPostsTask = new GetBlogPostsTask();
 			getBlogPostsTask.execute();
 		} else {
@@ -72,36 +84,52 @@ public class MainListActivity extends ListActivity {
 		return true;
 	}
 
-	public void updateList() {
+	public void handleBlogResponse() {
+		mProgressBar.setVisibility(View.INVISIBLE);
+
 		if (getmBlogData() == null) {
-			// TODO: Handle error
+			updateDisplayForError();
 		} else {
 			try {
 				JSONArray jsonPosts = mBlogData.getJSONArray("posts");
-				mBlogPostTitles = new String[jsonPosts.length()];
+				ArrayList<HashMap<String, String>> blogPosts = new ArrayList<HashMap<String, String>>();
 
 				for (int i = 0; i < jsonPosts.length(); i++) {
 					JSONObject post = jsonPosts.getJSONObject(i);
-					String title = post.getString("title");
+					String title = post.getString(KEY_TITLE);
 					title = Html.fromHtml(title).toString();
-					mBlogPostTitles[i] = title;
+					String author = post.getString(KEY_AUTHOR);
+					author = Html.fromHtml(author).toString();
+
+					HashMap<String, String> blogPost = new HashMap<String, String>();
+					blogPost.put(KEY_TITLE, title);
+					blogPost.put(KEY_AUTHOR, author);
+
+					blogPosts.add(blogPost);
 				} // end for
 
-				ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-						android.R.layout.simple_list_item_1, mBlogPostTitles);
+				String[] keys = { KEY_TITLE, KEY_AUTHOR };
+				int[] ids = { android.R.id.text1, android.R.id.text2 };
+				SimpleAdapter adapter = new SimpleAdapter(this, blogPosts,
+						android.R.layout.simple_list_item_2, keys, ids);
+
 				setListAdapter(adapter);
 			} catch (JSONException e) {
 				Log.e(TAG, "Exception caught!", e);
-			}
-		}
+			} // end try catch
+		} // end else
 	} // end updateList method
 
-	public String[] getmAndroidNames() {
-		return mBlogPostTitles;
-	}
+	private void updateDisplayForError() {
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setTitle(getString(R.string.title));
+		builder.setMessage(getString(R.string.error_message));
+		builder.setPositiveButton(android.R.string.ok, null);
+		AlertDialog dialog = builder.create();
+		dialog.show();
 
-	public void setmAndroidNames(String[] mAndroidNames) {
-		this.mBlogPostTitles = mAndroidNames;
+		TextView textViewEmpty = (TextView) getListView().getEmptyView();
+		textViewEmpty.setText(getString(R.string.no_items));
 	}
 
 	public JSONObject getmBlogData() {
@@ -155,39 +183,12 @@ public class MainListActivity extends ListActivity {
 			}
 
 			return jsonResponse;
-			/*
-			 * int responseCode = -1; JSONObject jsonResponse = null;
-			 * 
-			 * try { URL blogFeedUrl = new URL(
-			 * "http://blog.teamtreehouse.com/api/get_recent_summary/?count=" +
-			 * NUMBER_OF_POSTS);
-			 * 
-			 * HttpURLConnection httpURLConnection = (HttpURLConnection)
-			 * blogFeedUrl .openConnection(); httpURLConnection.connect();
-			 * responseCode = httpURLConnection.getResponseCode();
-			 * 
-			 * if (responseCode == HttpURLConnection.HTTP_OK) { // successful //
-			 * response InputStream inputStream =
-			 * httpURLConnection.getInputStream(); Reader reader = new
-			 * InputStreamReader(inputStream); int contectLength =
-			 * httpURLConnection.getContentLength(); char[] charArray = new
-			 * char[contectLength]; reader.read(charArray); String responseData =
-			 * new String(charArray);
-			 * 
-			 * jsonResponse = new JSONObject(responseData); } else { Log.e(TAG,
-			 * "Unsuccessful HTTP Response Code: " + responseCode); } } catch
-			 * (MalformedURLException e) { Log.e(TAG,
-			 * "MalformedURLException caught: ", e); } catch (IOException e) {
-			 * Log.e(TAG, "IOException caught: " + e.getMessage(), e); } catch
-			 * (Exception e) { Log.e(TAG, "Exception caught: ", e); } // end catch
-			 * return jsonResponse;
-			 */
 		} // end doInBackground method
 
 		@Override
 		protected void onPostExecute(JSONObject result) {
 			mBlogData = result;
-			updateList();
+			handleBlogResponse();
 		} // end onPostExecute method
 	} // end GetBlogPostsTask subclass
 }

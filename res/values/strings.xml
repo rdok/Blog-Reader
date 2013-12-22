@@ -14,5 +14,7 @@
         <item>The pretty nerd helped the fat cat.</item>
         <item>The weird cloud hopped over the cool doctor.</item>
     </string-array>
+    <string name="title">Ooops! Sorry!</string>
+    <string name="error_message">There was an error getting data from the blog.</string>
 
 </resources>
