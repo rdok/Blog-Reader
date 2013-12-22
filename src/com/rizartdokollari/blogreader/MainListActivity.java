@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -20,14 +21,16 @@ import org.json.JSONObject;
 import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Html;
 import android.util.Log;
-import android.view.Menu;
 import android.view.View;
+import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
@@ -63,6 +66,28 @@ public class MainListActivity extends ListActivity {
 		// Toast.makeText(this, message , Toast.LENGTH_LONG).show();
 	}
 
+	@Override
+	protected void onListItemClick(ListView l, View v, int position, long id) {
+		super.onListItemClick(l, v, position, id);
+
+		JSONArray jsonPosts;
+		try {
+			jsonPosts = mBlogData.getJSONArray("posts");
+			JSONObject jsonPost = jsonPosts.getJSONObject(position);
+			String blogUrl = jsonPost.getString("url");
+			Intent intent = new Intent(Intent.ACTION_VIEW);
+			intent.setData(Uri.parse(blogUrl));
+			startActivity(intent);
+		} catch (JSONException e) {
+			logException(e);
+		}
+
+	} // end onListItemClick method
+
+	private void logException(Exception e) {
+		logException(e);
+	}
+
 	private boolean isNetwokAvailable() {
 		ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
@@ -75,13 +100,6 @@ public class MainListActivity extends ListActivity {
 		}
 
 		return isAvailable;
-	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main_list, menu);
-		return true;
 	}
 
 	public void handleBlogResponse() {
@@ -115,7 +133,7 @@ public class MainListActivity extends ListActivity {
 
 				setListAdapter(adapter);
 			} catch (JSONException e) {
-				Log.e(TAG, "Exception caught!", e);
+				logException(e);
 			} // end try catch
 		} // end else
 	} // end updateList method
@@ -176,10 +194,9 @@ public class MainListActivity extends ListActivity {
 							responseCode));
 				}
 			} catch (JSONException e) {
-				Log.i(TAG, String.format("JSONException: %s", responseCode));
-
+				logException(e);
 			} catch (Exception e) {
-				Log.i(TAG, String.format("JSONException: %s", responseCode));
+				logException(e);
 			}
 
 			return jsonResponse;
