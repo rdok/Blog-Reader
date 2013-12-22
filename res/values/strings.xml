@@ -14,7 +14,11 @@
         <item>The pretty nerd helped the fat cat.</item>
         <item>The weird cloud hopped over the cool doctor.</item>
     </string-array>
+
     <string name="title">Ooops! Sorry!</string>
     <string name="error_message">There was an error getting data from the blog.</string>
+    <string name="title_activity_blog_web_view">Blog Post</string>
+    <string name="action_share">Share</string>
+    <string name="share_chooser_title">Share this post:</string>
 
 </resources>
