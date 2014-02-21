@@ -1,4 +1,6 @@
-package com.rizartdokollari.blogreader;
+package me.rdokollari.blogreader;
+
+import com.rizartdokollari.blogreader.R;
 
 import android.app.Activity;
 import android.content.Intent;

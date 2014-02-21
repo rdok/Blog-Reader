@@ -1,4 +1,4 @@
-package com.rizartdokollari.blogreader;
+package me.rdokollari.blogreader;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -17,6 +17,8 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import com.rizartdokollari.blogreader.R;
 
 import android.app.AlertDialog;
 import android.app.ListActivity;
